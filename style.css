@@ -1,0 +1,11 @@
+.field {
+    width: 100px;
+    height: 100px;
+    border: 2px solid black;
+}
+.gamefield {
+    width: fit-content;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0px auto;
+}
