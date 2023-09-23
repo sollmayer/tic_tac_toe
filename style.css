@@ -9,3 +9,7 @@
     grid-template-columns: repeat(3, 1fr);
     margin: 0px auto;
 }
+
+header h1 {
+    text-align: center;
+}
