@@ -17,3 +17,28 @@ const gameBoard = (()=>{
 
 })()
 
+const displayController = (()=>{
+    const fields = document.querySelectorAll('.field')
+
+    fields.forEach(field => {
+        field.addEventListener("click", (e) => {
+            if(e.target.textContent !== "") return;
+
+        })
+    })
+
+    const updateGameboard = () => {
+        fields.forEach((field,index) => {
+            fields[index].textContent = gameBoard.getField(index)
+        })
+    }
+
+})()
+
+const Player = (sign) => {
+    this.sign = sign;
+
+    const getSign = () => this.sign;
+
+    return {getSign};
+}
