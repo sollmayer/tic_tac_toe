@@ -22,3 +22,27 @@ html {
 header h1 {
     text-align: center;
 }
+
+.reset {
+    margin-top: 2rem;
+    text-align: center;
+}
+.restart_btn {
+    width: 8rem;
+    height: 3rem;
+    border:none;
+    border-radius: 0.4rem;
+    color: white;
+    font-weight: 700;
+    background-color: rgb(33, 122, 248);
+    box-shadow: 1px 2px 0px 1px rgb(199, 199, 199);
+}
+.winner_div {
+    text-align: center;
+    margin-top: 2rem;
+}
+.winner_msg {
+    font-size: 4rem;
+    font-weight: 400;
+    color: cornflowerblue;
+}
