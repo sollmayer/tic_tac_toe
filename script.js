@@ -13,6 +13,8 @@ const gameBoard = (()=>{
 
 const displayController = (()=>{
     const fields = document.querySelectorAll('.field')
+    const restart_btn = document.querySelector('.restart_btn')
+    const winner_msg = document.querySelector('.winner_msg')
 
     fields.forEach(field => {
         field.addEventListener("click", (e) => {
@@ -22,19 +24,27 @@ const displayController = (()=>{
         })
     })
 
+    restart_btn.addEventListener('click', ()=>{
+        winner_msg.textContent = "";
+        gameController.startNewGame();
+    })
+
     const updateGameboard = () => {
         fields.forEach((field,index) => {
             fields[index].textContent = gameBoard.getField(index)
         })
     }
 
+    const displayWinner = (winner) => {
+        winner_msg.textContent = `Winner is ${winner} player`
+    }
+
+    return {updateGameboard,displayWinner}
 })()
 
 const Player = sign => {
-
-    const getSign = () => sign;
-
-    return {getSign};
+    // const getSign = () => sign;
+    return {getSign : () => sign};
 }
 
 const gameController = (()=>{
@@ -47,6 +57,7 @@ const gameController = (()=>{
         gameBoard.setField(fieldIndex, getCurrentPlayerSign());
         if(checkWinner(fieldIndex)){
             console.log(`Winner is ${getCurrentPlayerSign()} player`)
+            displayController.displayWinner(getCurrentPlayerSign());
             isOver = true;
             return;
         }
@@ -79,5 +90,11 @@ const gameController = (()=>{
                                         combination.every(index => gameBoard.getField(index) === getCurrentPlayerSign()) )
     }
 
-    return {playRound,getIsOver}
+    const startNewGame = () => {
+        gameBoard.reset();
+        displayController.updateGameboard();
+        turn = 1;
+        isOver = false;
+    }
+    return {playRound,getIsOver,startNewGame}
 })()
