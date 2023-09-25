@@ -36,7 +36,8 @@ const displayController = (()=>{
     }
 
     const displayWinner = (winner) => {
-        winner_msg.textContent = `Winner is ${winner} player`
+        if(winner === "Draw") winner_msg.textContent = `It's a Draw` 
+        else winner_msg.textContent = `Winner is ${winner} player`
     }
 
     return {updateGameboard,displayWinner}
@@ -62,7 +63,7 @@ const gameController = (()=>{
             return;
         }
         if(turn === 9) {
-            console.log("Draw")
+            displayController.displayWinner("Draw");
             isOver = true;
             return;
         }
@@ -75,14 +76,9 @@ const gameController = (()=>{
     const getIsOver = () => isOver;
     const checkWinner = (fieldIndex) => {
         const winFieldsCombinations = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6],
+            [0, 1, 2],[3, 4, 5],[6, 7, 8],
+            [0, 3, 6],[1, 4, 7],[2, 5, 8],
+            [0, 4, 8],[2, 4, 6]
         ];
 
         return winFieldsCombinations.filter(combination => combination.includes(fieldIndex))
