@@ -14,7 +14,20 @@
     <header>
         <h1>TIC TAC TOE</h1>
     </header>
-    <main>
+    <div class="menu">
+        <div class="sub_menu">
+            <div>
+                <label for="playerOneName">Player 1 Name:</label>
+                <input type="text" placeholder="Name" id="playerOneName">
+            </div>
+            <div>
+                <label for="playerTwoName">Player 2 Name:</label>
+                <input type="text" placeholder="Name" id="playerTwoName">
+            </div>
+            <button id="startGameBtn">Start Game</button>
+        </div>
+    </div>
+    <main class="disabled">
         <div class="gamefield">
             <div class="field" data-index="0"></div>
             <div class="field" data-index="1"></div>
