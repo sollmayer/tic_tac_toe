@@ -1,13 +1,13 @@
 const gameBoard = (()=>{
-    let board = new Array(9).fill(null);
+    let board = new Array(9).fill("");
 
     const setField = (index, sign) => {
         board[index] = sign;
     }
     const getField = (index) => board[index];
     const reset = () => board.fill("");
-
-    return {setField,getField,reset}
+    const getBoard = () => board;
+    return {setField,getField,reset,getBoard}
 
 })()
 
@@ -15,6 +15,7 @@ const displayController = (()=>{
     const fields = document.querySelectorAll('.field')
     const restart_btn = document.querySelector('.restart_btn')
     const winner_msg = document.querySelector('.winner_msg')
+    const startGameBtn = document.querySelector('#startGameBtn')
 
     fields.forEach(field => {
         field.addEventListener("click", (e) => {
@@ -22,6 +23,12 @@ const displayController = (()=>{
             gameController.playRound(parseInt(e.target.dataset.index))
             updateGameboard()
         })
+    })
+
+    startGameBtn.addEventListener('click', ()=>{
+        document.querySelector('.menu').classList.add('disabled');
+        document.querySelector('main').classList.remove('disabled');
+
     })
 
     restart_btn.addEventListener('click', ()=>{
@@ -37,28 +44,34 @@ const displayController = (()=>{
 
     const displayWinner = (winner) => {
         if(winner === "Draw") winner_msg.textContent = `It's a Draw` 
-        else winner_msg.textContent = `Winner is ${winner} player`
+        else winner_msg.textContent = `Winner is ${winner}`
     }
 
     return {updateGameboard,displayWinner}
 })()
 
-const Player = sign => {
-    // const getSign = () => sign;
-    return {getSign : () => sign};
+const Player = (name,sign) => {
+    const getSign = () => sign;
+    const getName = () => name;
+    return {getSign,getName};
 }
 
 const gameController = (()=>{
-    const playerX = Player("X");
-    const playerO = Player("O");
+    let playerX = Player('Player1',"X");
+    let playerO = Player('Player2',"O");
+    document.querySelector('#playerOneName')
+        .addEventListener('input',(e)=>playerX = Player(e.target.value, "X"))
+    document.querySelector('#playerTwoName')
+        .addEventListener('input',(e)=>playerO = Player(e.target.value, "O"))
+
     let isOver = false;
     let turn = 1;
 
     const playRound = (fieldIndex) => {
         gameBoard.setField(fieldIndex, getCurrentPlayerSign());
         if(checkWinner(fieldIndex)){
-            console.log(`Winner is ${getCurrentPlayerSign()} player`)
-            displayController.displayWinner(getCurrentPlayerSign());
+            console.log(`Winner is ${getWinnerName()} player`)
+            displayController.displayWinner(getWinnerName());
             isOver = true;
             return;
         }
@@ -72,6 +85,9 @@ const gameController = (()=>{
     }
     const getCurrentPlayerSign = () => {
         return turn % 2 === 1 ? playerX.getSign() : playerO.getSign();
+    }
+    const getWinnerName = () => {
+        return turn % 2 === 1 ? playerX.getName() : playerO.getName();
     }
     const getIsOver = () => isOver;
     const checkWinner = (fieldIndex) => {
