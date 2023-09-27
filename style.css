@@ -45,6 +45,7 @@ header h1 {
     border-radius: 0.4rem;
     color: white;
     font-weight: 700;
+    font-size: 1rem;
     background-color: rgb(33, 122, 248);
     box-shadow: 0px 3px 0px rgb(60, 106, 137);
 }
@@ -94,6 +95,7 @@ header h1 {
     height: 2.5rem;
     padding-left: 0.5rem;
     font-weight: 700;
+    font-size: 1.2rem;
 }
 .menu label {
     padding: 0;
