@@ -115,12 +115,6 @@ const gameController = (()=>{
     }
     const computerPlays = () =>{
         
-        // let index = Math.floor(Math.random() * gameBoard.getBoard().length);
-        // while(gameBoard.getField(index) !== "") {
-        //     if (gameBoard.getBoard().every(elem => elem !== "")) {finishGame('Draw'); return;}
-        //     index = Math.floor(Math.random() * gameBoard.getBoard().length);
-        // }
-
         let board = gameBoard.getBoard().reduce((arr,item,index) => {
             item == "" ? arr.push(item.replace("",index)):arr.push(item)
             return arr;
@@ -223,6 +217,7 @@ const gameController = (()=>{
         turn = "PlayerOne"
         isOver = false;
     }
-    return {playRound,getIsOver,startNewGame,changeMode,getCurrentMode,minimax,winnerComb}
+
+    return {playRound,getIsOver,startNewGame,changeMode,getCurrentMode}
 })()
 
