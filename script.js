@@ -16,11 +16,12 @@ const displayController = (()=>{
     const restart_btn = document.querySelector('.restart_btn')
     const winner_msg = document.querySelector('.winner_msg')
     const startGameBtn = document.querySelector('#startGameBtn')
+    const changeMode = document.querySelector('#change_mode')
 
     fields.forEach(field => {
         field.addEventListener("click", (e) => {
             if(e.target.textContent !== "" || gameController.getIsOver()) return;
-            gameController.playRound(parseInt(e.target.dataset.index))
+            gameController.playRound(parseInt(e.target.dataset.index),gameController.getCurrentMode())
             updateGameboard()
         })
     })
@@ -30,6 +31,12 @@ const displayController = (()=>{
         document.querySelector('main').classList.remove('disabled');
 
     })
+    changeMode.addEventListener('click', ()=>{
+        gameController.changeMode()
+        document.querySelector('.menu').classList.add('disabled');
+        document.querySelector('main').classList.remove('disabled');
+    })
+    
 
     restart_btn.addEventListener('click', ()=>{
         winner_msg.textContent = "";
@@ -65,68 +72,157 @@ const Player = (name,sign) => {
 }
 
 const gameController = (()=>{
-    let playerX = Player('Player1',"X");
-    let playerO = Player('Player2',"O");
+    let mode = "Players";
+    let playerOne = Player('Player1',"X");
+    let playerTwo = Player('Player2',"O");
     document.querySelector('#playerOneName')
-        .addEventListener('input',(e)=>playerX = Player(e.target.value, "X"))
+        .addEventListener('input',(e)=>playerOne = Player(e.target.value, "X"))
     document.querySelector('#playerTwoName')
-        .addEventListener('input',(e)=>playerO = Player(e.target.value, "O"))
+        .addEventListener('input',(e)=>playerTwo = Player(e.target.value, "O"))
 
     let isOver = false;
-    let turn = 1;
-
-    const playRound = (fieldIndex) => {
-        gameBoard.setField(fieldIndex, getCurrentPlayerSign());
-        if(checkWinner(fieldIndex)){
-            displayController.displayWinner(getWinnerName());
-            isOver = true;
-            return;
-        }
-        if(turn === 9) {
-            displayController.displayWinner("Draw");
-            isOver = true;
-            return;
-        }
-        turn++;
-
+    let round = 1;
+    let turn = "PlayerOne"
+    const changeMode = () => {
+        mode = "Computer";
+        playerTwo = Player('Computer',"O");
     }
+    const getCurrentMode = () => mode;
+    const changeTurn = () => {
+        turn = turn === "PlayerOne" ?  "PlayerTwo" : "PlayerOne";
+        round++;
+    }
+    const playRound = (fieldIndex, currentMode) => {
+        gameBoard.setField(fieldIndex, getCurrentPlayerSign());
+        if(checkWinner(gameBoard.getBoard(), getCurrentPlayerSign())){
+            displayController.highlightWinner(winnerComb)
+            finishGame(getWinnerName());
+            return;
+        }
+        if(round === 9) {
+            finishGame("Draw")
+        }
+        if(currentMode === "Computer" && getCurrentPlayerSign() === playerOne.getSign()) {
+            changeTurn();
+            computerPlays();
+        }
+        changeTurn();
+    }
+
+    const finishGame = (result) => {
+        displayController.displayWinner(result);
+        isOver = true;
+    }
+    const computerPlays = () =>{
+        
+        // let index = Math.floor(Math.random() * gameBoard.getBoard().length);
+        // while(gameBoard.getField(index) !== "") {
+        //     if (gameBoard.getBoard().every(elem => elem !== "")) {finishGame('Draw'); return;}
+        //     index = Math.floor(Math.random() * gameBoard.getBoard().length);
+        // }
+
+        let board = gameBoard.getBoard().reduce((arr,item,index) => {
+            item == "" ? arr.push(item.replace("",index)):arr.push(item)
+            return arr;
+        },[])
+
+        let bestMove = minimax(board,"O").index
+        console.log(bestMove);
+        gameBoard.setField(bestMove,playerTwo.getSign())
+        if(checkWinner(gameBoard.getBoard(),getCurrentPlayerSign())){
+            displayController.displayWinner(getWinnerName());
+            displayController.highlightWinner(winnerComb)
+            isOver = true;
+            return;
+        }
+    }
+
+    const minimax = (newBoard, player) => {
+        let availSpots = newBoard.filter(s => s != "O" && s != "X");
+
+        if(checkWinner(newBoard, "X")) return {score:-10}
+        else if(checkWinner(newBoard, "O")) return {score:10}
+        else if(availSpots.length === 0) return {score:0}
+
+        let moves = [];
+
+        for (const element of availSpots){
+            let move = {};
+            move.index = newBoard[element];
+      
+            newBoard[element] = player;
+        
+            if (player == "O"){
+                let result = minimax(newBoard, "X");
+                move.score = result.score;
+            }
+            else{
+                let result = minimax(newBoard, "O");
+                move.score = result.score;
+            }
+        
+            newBoard[element] = move.index;
+            moves.push(move);
+        }
+        // if it is the computer's turn loop over the moves and choose the move with the highest score
+        let bestMove;
+        if(player === "O"){
+            let bestScore = -10000;
+            for(let i = 0; i < moves.length; i++){
+            if(moves[i].score > bestScore){
+                bestScore = moves[i].score;
+                bestMove = i;
+            }
+            }
+        }else{
+
+        // else loop over the moves and choose the move with the lowest score
+            let bestScore = 10000;
+            for(let i = 0; i < moves.length; i++){
+            if(moves[i].score < bestScore){
+                bestScore = moves[i].score;
+                bestMove = i;
+            }
+            }
+        }
+
+        return moves[bestMove];
+        
+    }
+    
     const getCurrentPlayerSign = () => {
-        return turn % 2 === 1 ? playerX.getSign() : playerO.getSign();
+        return turn === "PlayerOne" ? playerOne.getSign() : playerTwo.getSign();
     }
     const getWinnerName = () => {
-        return turn % 2 === 1 ? playerX.getName() : playerO.getName();
+        return turn === "PlayerOne" ? playerOne.getName() : playerTwo.getName();
     }
+
     const getIsOver = () => isOver;
-    const checkWinner = (fieldIndex) => {
+
+    let winnerComb;
+    const checkWinner = (board, sign) => {
         const winFieldsCombinations = [
             [0, 1, 2],[3, 4, 5],[6, 7, 8],
             [0, 3, 6],[1, 4, 7],[2, 5, 8],
             [0, 4, 8],[2, 4, 6]
         ];
-        let winnerComb = [];
-        // console.log(winFieldsCombinations.filter(combination => combination.includes(fieldIndex))
-        // .some(combination => 
-        //     combination.every(index => {
-        //         if(gameBoard.getField(index) === getCurrentPlayerSign()){
-        //             winnerComb = combination;
-        //             return true;
-        //         }
-        //     }) ))
-        // console.log(winnerComb)
-        return winFieldsCombinations.filter(combination => combination.includes(fieldIndex))
-                                    .some(combination => {
-                                        if(combination.every(index => gameBoard.getField(index) === getCurrentPlayerSign())){
-                                            displayController.highlightWinner(combination)
-                                            return true;
-                                        }
-                                    })
+        return winFieldsCombinations.reduce((result, comb) => {
+            if(comb.every(field => board[field] == sign)) {
+                result = true;
+                winnerComb = comb;
+            };
+            return result;
+        },false)
+
     }
 
     const startNewGame = () => {
         gameBoard.reset();
         displayController.updateGameboard();
-        turn = 1;
+        round = 1;
+        turn = "PlayerOne"
         isOver = false;
     }
-    return {playRound,getIsOver,startNewGame}
+    return {playRound,getIsOver,startNewGame,changeMode,getCurrentMode,minimax,winnerComb}
 })()
+
