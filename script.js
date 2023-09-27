@@ -33,12 +33,15 @@ const displayController = (()=>{
 
     restart_btn.addEventListener('click', ()=>{
         winner_msg.textContent = "";
+        fields.forEach((field,index) => {
+            fields[index].style = 'none';
+        })
         gameController.startNewGame();
     })
 
     const updateGameboard = () => {
         fields.forEach((field,index) => {
-            fields[index].textContent = gameBoard.getField(index)
+            fields[index].textContent = gameBoard.getField(index);
         })
     }
 
@@ -47,7 +50,12 @@ const displayController = (()=>{
         else winner_msg.textContent = `Winner is ${winner}`
     }
 
-    return {updateGameboard,displayWinner}
+    const highlightWinner = (winnerComb) => {
+        winnerComb.forEach(index => {
+            fields[index].style.backgroundColor ="#03a9f4"
+        })
+    }
+    return {updateGameboard,displayWinner, highlightWinner}
 })()
 
 const Player = (name,sign) => {
@@ -70,7 +78,6 @@ const gameController = (()=>{
     const playRound = (fieldIndex) => {
         gameBoard.setField(fieldIndex, getCurrentPlayerSign());
         if(checkWinner(fieldIndex)){
-            console.log(`Winner is ${getWinnerName()} player`)
             displayController.displayWinner(getWinnerName());
             isOver = true;
             return;
@@ -96,10 +103,23 @@ const gameController = (()=>{
             [0, 3, 6],[1, 4, 7],[2, 5, 8],
             [0, 4, 8],[2, 4, 6]
         ];
-
+        let winnerComb = [];
+        // console.log(winFieldsCombinations.filter(combination => combination.includes(fieldIndex))
+        // .some(combination => 
+        //     combination.every(index => {
+        //         if(gameBoard.getField(index) === getCurrentPlayerSign()){
+        //             winnerComb = combination;
+        //             return true;
+        //         }
+        //     }) ))
+        // console.log(winnerComb)
         return winFieldsCombinations.filter(combination => combination.includes(fieldIndex))
-                                    .some(combination => 
-                                        combination.every(index => gameBoard.getField(index) === getCurrentPlayerSign()) )
+                                    .some(combination => {
+                                        if(combination.every(index => gameBoard.getField(index) === getCurrentPlayerSign())){
+                                            displayController.highlightWinner(combination)
+                                            return true;
+                                        }
+                                    })
     }
 
     const startNewGame = () => {
